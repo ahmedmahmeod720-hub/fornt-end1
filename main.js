@@ -8,7 +8,7 @@ const WHATSAPP_NUMBER = '201143348433';
 
 // عنوان الباك إند (سبرينج بوت)
 // غيّر البورت لو شغّال على بورت تاني
-const API_BASE = 'back-end2-production.up.railway.app';
+const API_BASE = 'https://back-end2-production.up.railway.app';
 
 // ===== البيانات المحملة من الباك إند (كاش في الذاكرة) =====
 let bricks = [];
