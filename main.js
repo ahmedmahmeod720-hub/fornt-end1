@@ -1,60 +1,32 @@
-const API_BASE = 'https://back-end2-production.up.railway.app';
 const WHATSAPP_NUMBER = '201143348433';
+// استبدل الرابط أدناه برابط الباك إند الحقيقي الخاص بك على Railway بدون شُرطة مائلة في الآخر
+const API_BASE_URL = 'https://your-backend-railway-url.railway.app';
 
-const defaultBricks = [
-    { id: '1', name: 'طوب أحمر مفرغ (مثقب)', price: 1200, size: '25×12×6 سم' },
-    { id: '2', name: 'طوب أسمنتي مصمت', price: 1600, size: '25×12×6 سم' },
-    { id: '3', name: 'طوب خفيف إيكولوجي', price: 2100, size: '60×20×20 سم' }
-];
+let siteData = {
+    bricks: [],
+    governorates: [],
+    orders: []
+};
 
-const defaultGovernorates = [
-    { id: '1', name: 'القاهرة', freight: 300 },
-    { id: '2', name: 'الجيزة', freight: 250 },
-    { id: '3', name: 'القليوبية', freight: 350 },
-    { id: '4', name: 'الإسكندرية', freight: 550 },
-    { id: '5', name: 'البحيرة', freight: 500 },
-    { id: '6', name: 'الفيوم', freight: 400 },
-    { id: '7', name: 'الشرقية', freight: 400 },
-    { id: '8', name: 'الدقهلية', freight: 450 },
-    { id: '9', name: 'الغربية', freight: 420 },
-    { id: '10', name: 'المنوفية', freight: 380 },
-    { id: '11', name: 'دمياط', freight: 500 },
-    { id: '12', name: 'بورسعيد', freight: 550 },
-    { id: '13', name: 'الإسماعيلية', freight: 480 },
-    { id: '14', name: 'السويس', freight: 500 },
-    { id: '15', name: 'كفر الشيخ', freight: 460 },
-    { id: '16', name: 'بني سويف', freight: 450 },
-    { id: '17', name: 'المنيا', freight: 550 },
-    { id: '18', name: 'أسيوط', freight: 650 },
-    { id: '19', name: 'سوهاج', freight: 750 },
-    { id: '20', name: 'قنا', freight: 850 },
-    { id: '21', name: 'الأقصر', freight: 900 },
-    { id: '22', name: 'أسوان', freight: 1000 },
-    { id: '23', name: 'مطروح', freight: 800 },
-    { id: '24', name: 'الوادي الجديد', freight: 950 },
-    { id: '25', name: 'البحر الأحمر', freight: 850 },
-    { id: '26', name: 'شمال سيناء', freight: 700 },
-    { id: '27', name: 'جنوب سيناء', freight: 850 }
-];
+// جلب البيانات من السيرفر (Backend) بدلاً من التخزين المحلي
+async function fetchServerData() {
+    try {
+        const [bricksRes, govsRes] = await Promise.all([
+            fetch(`${API_BASE_URL}/api/products`),
+            fetch(`${API_BASE_URL}/api/governorates`)
+        ]);
 
-function getStoredData() {
-    const bricks = localStorage.getItem('site_bricks');
-    const govs = localStorage.getItem('site_govs');
-    const orders = localStorage.getItem('site_orders');
-
-    return {
-        bricks: bricks ? JSON.parse(bricks) : defaultBricks,
-        governorates: govs ? JSON.parse(govs) : defaultGovernorates,
-        orders: orders ? JSON.parse(orders) : []
-    };
+        if (bricksRes.ok) siteData.bricks = await bricksRes.json();
+        if (govsRes.ok) siteData.governorates = await govsRes.json();
+        
+        renderClientViews();
+    } catch (error) {
+        console.error('خطأ في الاتصال بالسيرفر:', error);
+        showToast('تعذر الاتصال بقاعدة البيانات', 'error');
+    }
 }
 
-function saveData(key, data) {
-    localStorage.setItem(key, JSON.stringify(data));
-}
-
-function renderClientViews() {
-    const data = getStoredData();
+async function renderClientViews() {
     const grid = document.getElementById('pricesDisplayGrid');
     const catalogGovBody = document.getElementById('catalogFreightTableBody');
     const typeSelect = document.getElementById('reqType');
@@ -67,9 +39,9 @@ function renderClientViews() {
     if (govSelect) govSelect.innerHTML = '';
     if (catalogGovBody) catalogGovBody.innerHTML = '';
 
-    const defaultFreight = data.governorates.length > 0 ? data.governorates[0].freight : 0;
+    const defaultFreight = siteData.governorates.length > 0 ? siteData.governorates[0].freight : 0;
 
-    data.bricks.forEach(brick => {
+    siteData.bricks.forEach(brick => {
         grid.innerHTML += `
             <div class="brick-card">
                 <h4>🧱 ${brick.name}</h4>
@@ -86,7 +58,7 @@ function renderClientViews() {
         }
     });
 
-    data.governorates.forEach(gov => {
+    siteData.governorates.forEach(gov => {
         if (govSelect) {
             govSelect.innerHTML += `<option value="${gov.id}">${gov.name} (مشال: ${gov.freight} ج.م)</option>`;
         }
@@ -104,13 +76,12 @@ function renderClientViews() {
 }
 
 function calculateOrderTotal() {
-    const data = getStoredData();
     const typeId = document.getElementById('reqType')?.value;
     const qty = parseFloat(document.getElementById('reqQty')?.value) || 0;
     const govId = document.getElementById('reqGovernorate')?.value;
 
-    const selectedBrick = data.bricks.find(b => b.id === typeId);
-    const selectedGov = data.governorates.find(g => g.id === govId);
+    const selectedBrick = siteData.bricks.find(b => String(b.id) === String(typeId));
+    const selectedGov = siteData.governorates.find(g => String(g.id) === String(govId));
 
     const bPrice = selectedBrick ? selectedBrick.price : 0;
     const gFreight = selectedGov ? selectedGov.freight : 0;
@@ -123,12 +94,26 @@ function calculateOrderTotal() {
     }
 }
 
-function renderAdminPanel() {
-    const data = getStoredData();
+async function renderAdminPanel() {
+    // جلب أحدث البيانات للوحة التحكم
+    try {
+        const [bricksRes, govsRes, ordersRes] = await Promise.all([
+            fetch(`${API_BASE_URL}/api/products`),
+            fetch(`${API_BASE_URL}/api/governorates`),
+            fetch(`${API_BASE_URL}/api/orders`, { credentials: 'include' })
+        ]);
+
+        if (bricksRes.ok) siteData.bricks = await bricksRes.json();
+        if (govsRes.ok) siteData.governorates = await govsRes.json();
+        if (ordersRes.ok) siteData.orders = await ordersRes.json();
+    } catch (e) {
+        console.error('خطأ في جلب بيانات الإدارة', e);
+    }
+
     const pContainer = document.getElementById('adminPriceControls');
     if (pContainer) {
         pContainer.innerHTML = '';
-        data.bricks.forEach(b => {
+        siteData.bricks.forEach(b => {
             pContainer.innerHTML += `
                 <div style="margin-bottom:12px; background: rgba(255,255,255,0.03); padding: 10px; border-radius: 6px;">
                     <label style="color:var(--accent); font-weight:bold;">🧱 ${b.name}</label>
@@ -145,7 +130,7 @@ function renderAdminPanel() {
     const gBody = document.getElementById('adminFreightTableBody');
     if (gBody) {
         gBody.innerHTML = '';
-        data.governorates.forEach(g => {
+        siteData.governorates.forEach(g => {
             gBody.innerHTML += `
                 <tr>
                     <td>📍 ${g.name}</td>
@@ -162,79 +147,133 @@ function renderAdminPanel() {
     const oBody = document.getElementById('adminOrdersTableBody');
     if (oBody) {
         oBody.innerHTML = '';
-        data.orders.forEach(o => {
+        siteData.orders.forEach(o => {
             oBody.innerHTML += `
                 <tr>
-                    <td>${o.name}</td>
-                    <td>${o.phone}</td>
-                    <td>${o.brickType} (${o.qty})</td>
-                    <td>${o.governorate} - ${o.address}</td>
-                    <td>${o.totalPrice}</td>
+                    <td>${o.name || ''}</td>
+                    <td>${o.phone || ''}</td>
+                    <td>${o.brickType || ''} (${o.qty || ''})</td>
+                    <td>${o.governorate || ''} - ${o.address || ''}</td>
+                    <td>${o.totalPrice || ''}</td>
                     <td><button class="btn-submit btn-cancel" onclick="deleteOrder('${o.id}')">حذف</button></td>
                 </tr>
             `;
         });
         const totalElem = document.getElementById('totalOrdersCount');
-        if (totalElem) totalElem.innerText = data.orders.length;
+        if (totalElem) totalElem.innerText = siteData.orders.length;
     }
 }
 
-function saveBrickData(id) {
-    const data = getStoredData();
+async function saveBrickData(id) {
     const price = document.getElementById(`price_${id}`).value;
     const size = document.getElementById(`size_${id}`).value;
+    const brick = siteData.bricks.find(b => String(b.id) === String(id));
 
-    const brick = data.bricks.find(b => b.id === id);
-    if (brick) {
-        brick.price = parseFloat(price);
-        brick.size = size;
-        saveData('site_bricks', data.bricks);
-        showToast('تم تحديث السعر والمقاس بنجاح');
-        renderAdminPanel();
-        renderClientViews();
+    if (!brick) return;
+
+    const updatedData = { ...brick, price: parseFloat(price), size: size };
+
+    try {
+        const res = await fetch(`${API_BASE_URL}/api/products/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(updatedData),
+            credentials: 'include'
+        });
+
+        if (res.ok) {
+            showToast('تم تحديث السعر والمقاس بنجاح');
+            renderAdminPanel();
+            renderClientViews();
+        } else {
+            showToast('فشل التحديث، تأكد من صلاحيات الأدمن', 'error');
+        }
+    } catch (e) {
+        showToast('خطأ في الاتصال', 'error');
     }
 }
 
-function deleteBrick(id) {
+async function deleteBrick(id) {
     if (!confirm('هل تريد حذف هذا النوع؟')) return;
-    let data = getStoredData();
-    data.bricks = data.bricks.filter(b => b.id !== id);
-    saveData('site_bricks', data.bricks);
-    showToast('تم الحذف');
-    renderAdminPanel();
-    renderClientViews();
-}
-
-function saveGovData(id) {
-    const data = getStoredData();
-    const freight = document.getElementById(`gov_${id}`).value;
-
-    const gov = data.governorates.find(g => g.id === id);
-    if (gov) {
-        gov.freight = parseFloat(freight);
-        saveData('site_govs', data.governorates);
-        showToast('تم تحديث أسعار المشال');
-        renderAdminPanel();
-        renderClientViews();
+    try {
+        const res = await fetch(`${API_BASE_URL}/api/products/${id}`, {
+            method: 'DELETE',
+            credentials: 'include'
+        });
+        if (res.ok) {
+            showToast('تم الحذف');
+            renderAdminPanel();
+            renderClientViews();
+        } else {
+            showToast('فشل الحذف', 'error');
+        }
+    } catch (e) {
+        showToast('خطأ في الاتصال', 'error');
     }
 }
 
-function deleteGov(id) {
-    if (!confirm('هل تريد حذف المحافظة؟')) return;
-    let data = getStoredData();
-    data.governorates = data.governorates.filter(g => g.id !== id);
-    saveData('site_govs', data.governorates);
-    showToast('تم الحذف');
-    renderAdminPanel();
-    renderClientViews();
+async function saveGovData(id) {
+    const freight = document.getElementById(`gov_${id}`).value;
+    const gov = siteData.governorates.find(g => String(g.id) === String(id));
+
+    if (!gov) return;
+
+    const updatedData = { ...gov, freight: parseFloat(freight) };
+
+    try {
+        const res = await fetch(`${API_BASE_URL}/api/governorates/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(updatedData),
+            credentials: 'include'
+        });
+
+        if (res.ok) {
+            showToast('تم تحديث أسعار المشال');
+            renderAdminPanel();
+            renderClientViews();
+        } else {
+            showToast('فشل التحديث', 'error');
+        }
+    } catch (e) {
+        showToast('خطأ في الاتصال', 'error');
+    }
 }
 
-function deleteOrder(id) {
-    let data = getStoredData();
-    data.orders = data.orders.filter(o => o.id !== id);
-    saveData('site_orders', data.orders);
-    showToast('تم حذف الطلب');
-    renderAdminPanel();
+async function deleteGov(id) {
+    if (!confirm('هل تريد حذف المحافظة؟')) return;
+    try {
+        const res = await fetch(`${API_BASE_URL}/api/governorates/${id}`, {
+            method: 'DELETE',
+            credentials: 'include'
+        });
+        if (res.ok) {
+            showToast('تم الحذف');
+            renderAdminPanel();
+            renderClientViews();
+        } else {
+            showToast('فشل الحذف', 'error');
+        }
+    } catch (e) {
+        showToast('خطأ في الاتصال', 'error');
+    }
+}
+
+async function deleteOrder(id) {
+    try {
+        const res = await fetch(`${API_BASE_URL}/api/orders/${id}`, {
+            method: 'DELETE',
+            credentials: 'include'
+        });
+        if (res.ok) {
+            showToast('تم حذف الطلب');
+            renderAdminPanel();
+        } else {
+            showToast('فشل حذف الطلب', 'error');
+        }
+    } catch (e) {
+        showToast('خطأ في الاتصال', 'error');
+    }
 }
 
 function showSection(sectionId, btn) {
@@ -263,13 +302,16 @@ function showAdminDashboard() {
     renderAdminPanel();
 }
 
-function logoutAdmin() {
-    sessionStorage.removeItem('is_admin');
+async function logoutAdmin() {
+    try {
+        await fetch(`${API_BASE_URL}/api/logout`, { method: 'POST', credentials: 'include' });
+    } catch (e) {}
+
     document.getElementById('adminPortal').style.display = 'none';
     document.getElementById('adminNav').style.display = 'none';
     document.getElementById('clientPortal').style.display = 'block';
     document.getElementById('clientNav').style.display = 'flex';
-    renderClientViews();
+    fetchServerData();
     showToast('تم الخروج من لوحة التحكم');
 }
 
@@ -290,58 +332,44 @@ function showToast(message, type = 'success') {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    renderClientViews();
+    fetchServerData();
 
-    if (sessionStorage.getItem('is_admin') === 'true') {
-        showAdminDashboard();
-    }
+    // التحقق من الجلسة عند البداية
+    fetch(`${API_BASE_URL}/api/check-session`, { credentials: 'include' })
+        .then(res => res.json())
+        .then(data => {
+            if (data.isAdmin) {
+                showAdminDashboard();
+            }
+        }).catch(err => console.log('Session check failed', err));
 
-    document.getElementById('loginForm')?.addEventListener('submit', (e) => {
+    document.getElementById('loginForm')?.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const u = document.getElementById('loginUsername').value;
-        const p = document.getElementById('loginPassword').value;
+        const username = document.getElementById('loginUsername').value;
+        const password = document.getElementById('loginPassword').value;
 
-        if (u === 'admin' && p === '123') {
-            sessionStorage.setItem('is_admin', 'true');
-            showAdminDashboard();
-            showToast('تم الدخول بنجاح');
-        } else {
-            showToast('خطأ في بيانات الدخول', 'error');
+        try {
+            const res = await fetch(`${API_BASE_URL}/api/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password }),
+                credentials: 'include'
+            });
+            const data = await res.json();
+
+            if (data.success && data.role === 'admin') {
+                showAdminDashboard();
+                showToast('تم الدخول بنجاح');
+            } else {
+                showToast(data.message || 'خطأ في بيانات الدخول', 'error');
+            }
+        } catch (err) {
+            showToast('خطأ في الاتصال بالخادم', 'error');
         }
     });
 
-    document.getElementById('addBrickForm')?.addEventListener('submit', (e) => {
+    document.getElementById('clientOrderForm')?.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const data = getStoredData();
-        const name = document.getElementById('newBrickName').value;
-        const price = parseFloat(document.getElementById('newBrickPrice').value);
-        const size = document.getElementById('newBrickSize').value;
-
-        data.bricks.push({ id: Date.now().toString(), name, price, size });
-        saveData('site_bricks', data.bricks);
-        showToast('تمت إضافة الطوب');
-        e.target.reset();
-        renderAdminPanel();
-        renderClientViews();
-    });
-
-    document.getElementById('addGovForm')?.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const data = getStoredData();
-        const name = document.getElementById('newGovName').value;
-        const freight = parseFloat(document.getElementById('newGovFreight').value);
-
-        data.governorates.push({ id: Date.now().toString(), name, freight });
-        saveData('site_govs', data.governorates);
-        showToast('تمت إضافة المحافظة');
-        e.target.reset();
-        renderAdminPanel();
-        renderClientViews();
-    });
-
-    document.getElementById('clientOrderForm')?.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const data = getStoredData();
         const name = document.getElementById('reqName').value;
         const phone = document.getElementById('reqPhone').value;
         const typeSelect = document.getElementById('reqType');
@@ -352,14 +380,25 @@ document.addEventListener('DOMContentLoaded', () => {
         const address = document.getElementById('reqAddress').value;
         const totalPrice = document.getElementById('estimatedPrice').value;
 
-        const newOrder = { id: Date.now().toString(), name, phone, brickType, qty, governorate, address, totalPrice };
-        data.orders.push(newOrder);
-        saveData('site_orders', data.orders);
+        const newOrder = { name, phone, brickType, qty, governorate, address, totalPrice };
 
-        const text = `طلب توريد جديد:%0Aالاسم: ${name}%0Aالهاتف: ${phone}%0Aالنوع: ${brickType}%0Aالكمية: ${qty}%0Aالمحافظة: ${governorate}%0Aالعنوان: ${address}%0Aالإجمالي: ${totalPrice}`;
-        window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${text}`, '_blank');
+        try {
+            const res = await fetch(`${API_BASE_URL}/api/orders`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(newOrder)
+            });
 
-        showToast('تم إرسال الطلب وحفظه');
-        e.target.reset();
+            if (res.ok) {
+                const text = `طلب توريد جديد:%0Aالاسم: ${name}%0Aالهاتف: ${phone}%0Aالنوع: ${brickType}%0Aالكمية: ${qty}%0Aالمحافظة: ${governorate}%0Aالعنوان: ${address}%0Aالإجمالي: ${totalPrice}`;
+                window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${text}`, '_blank');
+                showToast('تم إرسال الطلب وحفظه في القاعدة بنجاح');
+                e.target.reset();
+            } else {
+                showToast('فشل حفظ الطلب', 'error');
+            }
+        } catch (err) {
+            showToast('خطأ في الاتصال بالسيرفر', 'error');
+        }
     });
 });
