@@ -1,6 +1,6 @@
 const WHATSAPP_NUMBER = '201143348433';
 // استبدل الرابط أدناه برابط الباك إند الحقيقي الخاص بك على Railway بدون شُرطة مائلة في الآخر
-const API_BASE_URL = 'https://your-backend-railway-url.railway.app';
+const API_BASE_URL = 'https://back-end2-production.up.railway.app';
 
 let siteData = {
     bricks: [],
