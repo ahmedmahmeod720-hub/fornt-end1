@@ -13,124 +13,284 @@
             <img src="mmn.jpeg" alt="اللوجو" class="nav-logo">
             <span>العمار مصر</span>
         </div>
+
         <div class="nav-links">
-            <button class="nav-link active" onclick="showSection('pricesSection', this)">الأسعار والتكلفة</button>
-            <button class="nav-link" onclick="showSection('freightSection', this)">سعر المشال المحافظات</button>
-            <button class="nav-link" onclick="showSection('certSection', this)">الشهادات والتراخيص</button>
-            <button class="nav-link" onclick="showSection('orderSection', this)">طلب توريد</button>
-            <button class="nav-link admin-btn" onclick="openAdminModal()">لوحة التحكم</button>
+            <button class="nav-link active" onclick="showSection('certSection', this)">
+                الشهادات والتراخيص
+            </button>
+
+            <button class="nav-link" onclick="showSection('pricesSection', this)">
+                الأسعار والتكلفة
+            </button>
+
+            <button class="nav-link" onclick="showSection('freightSection', this)">
+                سعر المشال المحافظات
+            </button>
+
+            <button class="nav-link" onclick="showSection('orderSection', this)">
+                طلب توريد
+            </button>
+
+            <button class="nav-link admin-btn" onclick="openAdminModal()">
+                لوحة التحكم
+            </button>
         </div>
     </nav>
+
 
     <nav id="adminNav" class="main-nav admin-mode" style="display: none;">
         <div class="logo-area">
             <img src="mmn.jpeg" alt="اللوجو" class="nav-logo">
             <span>لوحة الإدارة</span>
         </div>
+
         <div class="nav-links">
-            <button class="nav-link active" onclick="showAdminTab('bricksTab', this)">أسعار الطوب</button>
-            <button class="nav-link" onclick="showAdminTab('freightTab', this)">أسعار المشال</button>
-            <button class="nav-link" onclick="showAdminTab('ordersTab', this)">الطلبات (<span id="totalOrdersCount">0</span>)</button>
-            <button class="nav-link logout-btn" onclick="logoutAdmin()">خروج</button>
+
+            <button class="nav-link active" onclick="showAdminTab('bricksTab', this)">
+                أسعار الطوب
+            </button>
+
+            <button class="nav-link" onclick="showAdminTab('freightTab', this)">
+                أسعار المشال
+            </button>
+
+            <button class="nav-link" onclick="showAdminTab('ordersTab', this)">
+                الطلبات (<span id="totalOrdersCount">0</span>)
+            </button>
+
+            <button class="nav-link" onclick="showAdminTab('accountTab', this)">
+                إعدادات الحساب
+            </button>
+
+            <button class="nav-link logout-btn" onclick="logoutAdmin()">
+                خروج
+            </button>
+
         </div>
     </nav>
 
+
     <main id="clientPortal">
-        <section id="pricesSection" class="portal-page active-page">
+
+        <!-- الشهادات أول قسم -->
+        <section id="certSection" class="portal-page active-page">
+
             <div class="section-header">
-                <h2>أسعار الطوب اليوم</h2>
-                <p>تحديث مباشر للأسعار شاملة التكلفة الإجمالية والنقل التقديري</p>
+                <h2>الشهادات والتراخيص الجودة</h2>
+                <p>اعتمادات الجودة والسجل التجاري الخاص بمؤسسة العمار مصر</p>
             </div>
-            <div class="grid-container" id="pricesDisplayGrid"></div>
+
+            <div class="pdf-wrapper">
+                <iframe
+                    src="certificates.pdf"
+                    width="100%"
+                    height="650px"
+                    style="border: none; border-radius: 8px;">
+
+                    <p>
+                        المتصفح لا يدعم عرض PDF مباشرة.
+                        <a href="certificates.pdf" target="_blank">
+                            اضغط هنا لتحميل الملف
+                        </a>
+                    </p>
+
+                </iframe>
+            </div>
+
         </section>
 
+
+        <!-- الأسعار -->
+        <section id="pricesSection" class="portal-page">
+
+            <div class="section-header">
+                <h2>أسعار الطوب اليوم</h2>
+                <p>
+                    تحديث مباشر للأسعار شاملة التكلفة الإجمالية والنقل التقديري
+                </p>
+            </div>
+
+            <div class="grid-container" id="pricesDisplayGrid"></div>
+
+        </section>
+
+
+        <!-- المشال -->
         <section id="freightSection" class="portal-page">
+
             <div class="section-header">
                 <h2>جدول أسعار المشال المحافظات</h2>
-                <p>تكلفة النقل والمشال المضافة لكل ألف طوبة حسب المحافظة</p>
+                <p>
+                    تكلفة النقل والمشال المضافة لكل ألف طوبة حسب المحافظة
+                </p>
             </div>
+
             <div class="table-wrapper">
+
                 <table class="data-table">
+
                     <thead>
                         <tr>
                             <th>المحافظة</th>
                             <th>سعر المشال والنقل (للألف)</th>
                         </tr>
                     </thead>
+
                     <tbody id="catalogFreightTableBody"></tbody>
+
                 </table>
+
             </div>
+
         </section>
 
-        <section id="certSection" class="portal-page">
-            <div class="section-header">
-                <h2>الشهادات والتراخيص الجودة</h2>
-                <p>اعتمادات الجودة والسجل التجاري الخاص بمؤسسة العمار مصر</p>
-            </div>
-            <div class="pdf-wrapper">
-                <iframe src="certificates.pdf" width="100%" height="650px" style="border: none; border-radius: 8px;">
-                    <p>المتصفح لا يدعم عرض PDF مباشرة. <a href="certificates.pdf" target="_blank">اضغط هنا لتحميل الملف</a></p>
-                </iframe>
-            </div>
-        </section>
 
+        <!-- طلب التوريد -->
         <section id="orderSection" class="portal-page">
+
             <div class="section-header">
                 <h2>طلب توريد جديد</h2>
-                <p>قم بملء البيانات وسنقوم بحساب التكلفة وإرسال الطلب عبر الواتساب</p>
+                <p>
+                    قم بملء البيانات وسنقوم بحساب التكلفة وإرسال الطلب عبر الواتساب
+                </p>
             </div>
+
             <form id="clientOrderForm" class="form-container">
+
                 <div class="form-group">
                     <label>الاسم بالكامل</label>
-                    <input type="text" id="reqName" required placeholder="أدخل اسمك">
+                    <input
+                        type="text"
+                        id="reqName"
+                        required
+                        placeholder="أدخل اسمك">
                 </div>
+
                 <div class="form-group">
                     <label>رقم الهاتف</label>
-                    <input type="tel" id="reqPhone" required placeholder="01xxxxxxxxx">
+                    <input
+                        type="tel"
+                        id="reqPhone"
+                        required
+                        placeholder="01xxxxxxxxx">
                 </div>
+
                 <div class="form-group">
                     <label>نوع الطوب</label>
-                    <select id="reqType" onchange="calculateOrderTotal()"></select>
+                    <select
+                        id="reqType"
+                        onchange="calculateOrderTotal()">
+                    </select>
                 </div>
+
                 <div class="form-group">
                     <label>الكمية المطلوب (بالألف)</label>
-                    <input type="number" id="reqQty" value="1000" min="1000" step="1000" oninput="calculateOrderTotal()" required>
+                    <input
+                        type="number"
+                        id="reqQty"
+                        value="1000"
+                        min="1000"
+                        step="1000"
+                        oninput="calculateOrderTotal()"
+                        required>
                 </div>
+
                 <div class="form-group">
                     <label>المحافظة</label>
-                    <select id="reqGovernorate" onchange="calculateOrderTotal()"></select>
+                    <select
+                        id="reqGovernorate"
+                        onchange="calculateOrderTotal()">
+                    </select>
                 </div>
+
                 <div class="form-group">
                     <label>العنوان التفصيلي</label>
-                    <input type="text" id="reqAddress" required placeholder="المركز / القرية / الشارع">
+                    <input
+                        type="text"
+                        id="reqAddress"
+                        required
+                        placeholder="المركز / القرية / الشارع">
                 </div>
+
                 <div class="form-group full-width">
                     <label>الإجمالي التقديري</label>
-                    <input type="text" id="estimatedPrice" readonly class="readonly-input">
+                    <input
+                        type="text"
+                        id="estimatedPrice"
+                        readonly
+                        class="readonly-input">
                 </div>
-                <button type="submit" class="btn-submit full-width">إرسال الطلب عبر واتساب</button>
+
+                <button
+                    type="submit"
+                    class="btn-submit full-width">
+                    إرسال الطلب عبر واتساب
+                </button>
+
             </form>
+
         </section>
+
     </main>
 
+
+    <!-- لوحة الإدارة -->
     <main id="adminPortal" style="display: none;">
+
+        <!-- أسعار الطوب -->
         <section id="bricksTab" class="admin-tab-content active-tab">
+
             <h3>تعديل أسعار الطوب الحالية</h3>
-            <div id="adminPriceControls" class="admin-controls-list"></div>
+
+            <div
+                id="adminPriceControls"
+                class="admin-controls-list">
+            </div>
+
             <hr class="divider">
+
             <h3>إضافة نوع طوب جديد</h3>
+
             <form id="addBrickForm" class="inline-form">
-                <input type="text" id="newBrickName" placeholder="اسم النوع" required>
-                <input type="number" id="newBrickPrice" placeholder="السعر" required>
-                <input type="text" id="newBrickSize" placeholder="المقاس" required>
-                <button type="submit" class="btn-submit">إضافة</button>
+
+                <input
+                    type="text"
+                    id="newBrickName"
+                    placeholder="اسم النوع"
+                    required>
+
+                <input
+                    type="number"
+                    id="newBrickPrice"
+                    placeholder="السعر"
+                    required>
+
+                <input
+                    type="text"
+                    id="newBrickSize"
+                    placeholder="المقاس"
+                    required>
+
+                <button
+                    type="submit"
+                    class="btn-submit">
+                    إضافة
+                </button>
+
             </form>
+
         </section>
 
+
+        <!-- أسعار المشال -->
         <section id="freightTab" class="admin-tab-content">
+
             <h3>تعديل سعر المشال المحافظات</h3>
+
             <div class="table-wrapper">
+
                 <table class="data-table">
+
                     <thead>
                         <tr>
                             <th>المحافظة</th>
@@ -138,22 +298,51 @@
                             <th>الإجراءات</th>
                         </tr>
                     </thead>
+
                     <tbody id="adminFreightTableBody"></tbody>
+
                 </table>
+
             </div>
+
             <hr class="divider">
+
             <h3>إضافة محافظة جديدة</h3>
+
             <form id="addGovForm" class="inline-form">
-                <input type="text" id="newGovName" placeholder="اسم المحافظة" required>
-                <input type="number" id="newGovFreight" placeholder="سعر المشال" required>
-                <button type="submit" class="btn-submit">إضافة</button>
+
+                <input
+                    type="text"
+                    id="newGovName"
+                    placeholder="اسم المحافظة"
+                    required>
+
+                <input
+                    type="number"
+                    id="newGovFreight"
+                    placeholder="سعر المشال"
+                    required>
+
+                <button
+                    type="submit"
+                    class="btn-submit">
+                    إضافة
+                </button>
+
             </form>
+
         </section>
 
+
+        <!-- الطلبات -->
         <section id="ordersTab" class="admin-tab-content">
+
             <h3>سجل الطلبات الواردة</h3>
+
             <div class="table-wrapper">
+
                 <table class="data-table">
+
                     <thead>
                         <tr>
                             <th>الاسم</th>
@@ -164,34 +353,122 @@
                             <th>إجراء</th>
                         </tr>
                     </thead>
+
                     <tbody id="adminOrdersTableBody"></tbody>
+
                 </table>
+
             </div>
+
         </section>
+
+
+        <!-- إعدادات الحساب -->
+        <section id="accountTab" class="admin-tab-content">
+
+            <h3>إعدادات الحساب</h3>
+
+            <form id="accountSettingsForm" class="form-container">
+
+                <div class="form-group">
+                    <label>اسم المستخدم الجديد</label>
+
+                    <input
+                        type="text"
+                        id="newUsername"
+                        placeholder="اسم المستخدم الجديد">
+                </div>
+
+
+                <div class="form-group">
+                    <label>كلمة المرور الجديدة</label>
+
+                    <input
+                        type="password"
+                        id="newPassword"
+                        placeholder="كلمة المرور الجديدة">
+                </div>
+
+
+                <button
+                    type="submit"
+                    class="btn-submit">
+                    حفظ التغييرات
+                </button>
+
+            </form>
+
+        </section>
+
     </main>
 
-    <div id="adminAuthModal" class="modal-backdrop" style="display: none;">
+
+    <!-- تسجيل دخول الإدارة -->
+    <div
+        id="adminAuthModal"
+        class="modal-backdrop"
+        style="display: none;">
+
         <div class="modal-box">
+
             <h3>تسجيل دخول الإدارة</h3>
+
             <form id="loginForm">
+
                 <div class="form-group">
+
                     <label>اسم المستخدم</label>
-                    <input type="text" id="loginUsername" placeholder="admin" required>
+
+                    <input
+                        type="text"
+                        id="loginUsername"
+                        placeholder="admin"
+                        required>
+
                 </div>
+
+
                 <div class="form-group">
+
                     <label>كلمة المرور</label>
-                    <input type="password" id="loginPassword" placeholder="123" required>
+
+                    <input
+                        type="password"
+                        id="loginPassword"
+                        placeholder="123"
+                        required>
+
                 </div>
+
+
                 <div class="modal-actions">
-                    <button type="submit" class="btn-submit">دخول</button>
-                    <button type="button" class="btn-cancel" onclick="closeAdminModal()">إلغاء</button>
+
+                    <button
+                        type="submit"
+                        class="btn-submit">
+                        دخول
+                    </button>
+
+                    <button
+                        type="button"
+                        class="btn-cancel"
+                        onclick="closeAdminModal()">
+                        إلغاء
+                    </button>
+
                 </div>
+
             </form>
+
         </div>
+
     </div>
+
 
     <div id="toast-container"></div>
 
+
     <script src="main.js"></script>
+
 </body>
 </html>
