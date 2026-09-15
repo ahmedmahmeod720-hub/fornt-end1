@@ -8,7 +8,7 @@ let siteData = {
     orders: []
 };
 
-// جلب البيانات من السيرفر (Backend) بدلاً من التخزين المحلي
+
 async function fetchServerData() {
     try {
         const [bricksRes, govsRes] = await Promise.all([
@@ -365,6 +365,48 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } catch (err) {
             showToast('خطأ في الاتصال بالخادم', 'error');
+        }
+    });
+
+    
+    document.getElementById('accountSettingsForm')?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const username = document.getElementById('newUsername').value.trim();
+        const password = document.getElementById('newPassword').value.trim();
+
+        if (!username && !password) {
+            showToast('اكتب اسم المستخدم أو كلمة المرور الجديدة', 'error');
+            return;
+        }
+
+        try {
+            const res = await fetch(`${API_BASE_URL}/api/account`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'include',
+                body: JSON.stringify({
+                    username: username,
+                    password: password
+                })
+            });
+
+            const data = await res.json();
+
+            if (res.ok && data.success) {
+                showToast('تم تحديث بيانات الحساب بنجاح');
+
+                document.getElementById('newUsername').value = '';
+                document.getElementById('newPassword').value = '';
+            } else {
+                showToast(data.message || 'فشل تحديث بيانات الحساب', 'error');
+            }
+
+        } catch (error) {
+            console.error(error);
+            showToast('خطأ في الاتصال بالسيرفر', 'error');
         }
     });
 
